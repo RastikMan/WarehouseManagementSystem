@@ -19,12 +19,27 @@ namespace WarehouseManagementSystem.Controllers
 
         // Прием товара на склад
         [HttpPost("receive")]
-        public async Task<ActionResult> ReceiveProduct([FromBody] InventoryEntry inventoryEntry)
+        public async Task<ActionResult<Product>> ReceiveProduct(InventoryEntry inventoryEntry)
         {
-            _context.InventoryEntries.Add(inventoryEntry);
+            var existingInventoryEntry = await _context.InventoryEntries
+                .FirstOrDefaultAsync(entry => entry.ProductId == inventoryEntry.ProductId);
+
+            if (existingInventoryEntry != null)
+            {
+                // Если запись инвентаризации уже существует, увеличиваем количество товара
+                existingInventoryEntry.Quantity += inventoryEntry.Quantity;
+            }
+            else
+            {
+                // Если запись инвентаризации не существует, создаем новую запись
+                _context.InventoryEntries.Add(inventoryEntry);
+            }
+
             await _context.SaveChangesAsync();
+
             return Ok();
         }
+
 
         [HttpGet("receipts")]
         public async Task<ActionResult<IEnumerable<InventoryEntry>>> GetReceipts()
@@ -117,5 +132,9 @@ namespace WarehouseManagementSystem.Controllers
 
             return Ok(inventory);
         }
+
+
     }
+
+
 }
