@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using WarehouseManagementSystem.Models;
 
 namespace WarehouseManagementSystem.Data

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WarehouseManagementSystem.Data;
 using WarehouseManagementSystem.Models;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace WarehouseManagementSystem.Controllers
@@ -17,7 +16,6 @@ namespace WarehouseManagementSystem.Controllers
             _context = context;
         }
 
-        // Прием товара на склад
         [HttpPost("receive")]
         public async Task<ActionResult<Product>> ReceiveProduct(InventoryEntry inventoryEntry)
         {
@@ -26,12 +24,10 @@ namespace WarehouseManagementSystem.Controllers
 
             if (existingInventoryEntry != null)
             {
-                // Если запись инвентаризации уже существует, увеличиваем количество товара
                 existingInventoryEntry.Quantity += inventoryEntry.Quantity;
             }
             else
             {
-                // Если запись инвентаризации не существует, создаем новую запись
                 _context.InventoryEntries.Add(inventoryEntry);
             }
 
@@ -39,7 +35,6 @@ namespace WarehouseManagementSystem.Controllers
 
             return Ok();
         }
-
 
         [HttpGet("receipts")]
         public async Task<ActionResult<IEnumerable<InventoryEntry>>> GetReceipts()
@@ -74,7 +69,6 @@ namespace WarehouseManagementSystem.Controllers
             return NoContent();
         }
 
-        // Отгрузка товара со склада
         [HttpPost("ship")]
         public async Task<ActionResult> ShipProduct([FromBody] Shipment shipment)
         {
@@ -116,7 +110,6 @@ namespace WarehouseManagementSystem.Controllers
             return NoContent();
         }
 
-        // Просмотр остатков на складе
         [HttpGet("inventory")]
         public async Task<ActionResult<IEnumerable<Product>>> GetInventory()
         {
@@ -133,7 +126,13 @@ namespace WarehouseManagementSystem.Controllers
             return Ok(inventory);
         }
 
-
+        [HttpPost("clear")]
+        public async Task<ActionResult> ClearWarehouse()
+        {
+            _context.InventoryEntries.RemoveRange(_context.InventoryEntries);
+            await _context.SaveChangesAsync();
+            return Ok("Warehouse cleared successfully.");
+        }
     }
 
 
